@@ -1,9 +1,18 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
   "parameters": {
-    "hostingPlanName": {
-      "value": null
+    "storage_mvcmusicstore_name": {
+      "value": "musicstorestorage999"
+    },
+    "serverfarms_WestEuropePlan_name": {
+      "value": "musicstore999"
+    },
+    "musicstore_sitename": {
+      "value": "musicstore9991"
+    },
+    "config_web_name": {
+      "value": "musicstore9991/web"
     }
   }
 }
