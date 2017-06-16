@@ -1,179 +1,236 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "sites_MusicStoreFunctionApp_name": {
-      "defaultValue": "MusicStoreFunctionApp",
-      "type": "String"
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storage_mvcmusicstore_name": {
+            "type": "String"
+        },
+        "serverfarms_WestEuropePlan_name": {
+            "type": "String"
+        },
+        "musicstore_sitename": {
+            "type": "String"
+        },
+        "config_web_name": {
+            "type": "String"
+        }
     },
-    "config_web_name": {
-      "defaultValue": "MusicStoreFunctionApp/web",
-      "type": "String"
-    },
-    "sites_MusicStoreFunctionApp_serverFarmId": {
-      "defaultValue": "/subscriptions/6d45a9d6-675e-4064-8356-08660968c19b/resourceGroups/DotNext/providers/Microsoft.Web/serverfarms/ServicePlan4aa310a5-8b4f",
-      "type": "String"
-    }
+  "variables": {
+    "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', parameters('storage_mvcmusicstore_name'))]"
   },
-  "variables": {},
-  "resources": [
-    {
-      "comments": "Generalized from resource: '/subscriptions/6d45a9d6-675e-4064-8356-08660968c19b/resourceGroups/GDBC/providers/Microsoft.Web/sites/MusicStoreFunctionApp'.",
-      "type": "Microsoft.Web/sites",
-      "kind": "functionApp",
-      "name": "[parameters('sites_MusicStoreFunctionApp_name')]",
-      "apiVersion": "2015-08-01",
-      "location": "South Central US",
-      "tags": {
-        "hidden-related:/subscriptions/6d45a9d6-675e-4064-8356-08660968c19b/resourceGroups/DotNext/providers/Microsoft.Web/serverfarms/ServicePlan4aa310a5-8b4f": "empty"
-      },
-      "scale": null,
-      "properties": {
-        "name": "[parameters('sites_MusicStoreFunctionApp_name')]",
-        "hostNames": [
-          "musicstorefunctionapp.azurewebsites.net"
-        ],
-        "enabledHostNames": [
-          "musicstorefunctionapp.azurewebsites.net",
-          "musicstorefunctionapp.scm.azurewebsites.net"
-        ],
-        "hostNameSslStates": [
-          {
-            "name": "[concat(parameters('sites_MusicStoreFunctionApp_name'),'musicstorefunctionapp.azurewebsites.net')]",
-            "sslState": 0,
-            "thumbprint": null,
-            "ipBasedSslState": 0
+    "resources": [
+        {
+            "comments": "Generalized from resource: '/subscriptions/6fc3b2b4-efd7-4580-aaac-36ecf24bbd7e/resourceGroups/devopsfunction/providers/Microsoft.Storage/storageAccounts/mvcmusicstorefuab64'.",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "name": "[parameters('storage_mvcmusicstore_name')]",
+            "apiVersion": "2016-01-01",
+            "location": "westeurope",
+            "tags": {},
+            "scale": null,
+            "properties": {},
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/6fc3b2b4-efd7-4580-aaac-36ecf24bbd7e/resourceGroups/DevOpsFunction/providers/Microsoft.Web/serverfarms/WestEuropePlan'.",
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 0
+            },
+            "kind": "functionapp",
+            "name": "[parameters('serverfarms_WestEuropePlan_name')]",
+            "apiVersion": "2015-08-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "name": "[parameters('serverfarms_WestEuropePlan_name')]",
+                "numberOfWorkers": 0
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Generalized from resource: '/subscriptions/6fc3b2b4-efd7-4580-aaac-36ecf24bbd7e/resourceGroups/DevOpsFunction/providers/Microsoft.Web/sites/MvcMusicStoreFunction12345'.",
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[parameters('musicstore_sitename')]",
+            "apiVersion": "2015-08-01",
+            "location": "West Europe",
+            "scale": null,
+          "properties": {
+            "name": "[parameters('musicstore_sitename')]",
+
+            "hostNameSslStates": [
+              {
+                "name": "[concat(parameters('musicstore_sitename'),'.azurewebsites.net')]",
+                "sslState": 0,
+                "thumbprint": null,
+                "ipBasedSslState": 0
+              },
+              {
+                "name": "[concat(parameters('musicstore_sitename'),'.scm.azurewebsites.net')]",
+                "sslState": 0,
+                "thumbprint": null,
+                "ipBasedSslState": 0
+              }
+            ],
+            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_WestEuropePlan_name'))]",
+            "siteConfig": {
+              "appSettings": [
+                {
+                  "name": "FUNCTIONS_EXTENSION_VERSION",
+                  "value": "~1"
+                },
+                {
+                  "name": "AzureWebJobsDashboard",
+                  "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storage_mvcmusicstore_name'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storage_mvcmusicstore_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
+                },
+                {
+                  "name": "AzureWebJobsStorage",
+                  "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storage_mvcmusicstore_name'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storage_mvcmusicstore_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
+                },
+                {
+                  "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                  "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storage_mvcmusicstore_name'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+                },
+                {
+                  "name": "WEBSITE_CONTENTSHARE",
+                  "value": "[toLower(parameters('musicstore_sitename'))]"
+                },
+                {
+                  "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                  "value": "6.5.0"
+                }
+              ]
+            }
           },
-          {
-            "name": "[concat(parameters('sites_MusicStoreFunctionApp_name'),'musicstorefunctionapp.scm.azurewebsites.net')]",
-            "sslState": 0,
-            "thumbprint": null,
-            "ipBasedSslState": 0
-          }
-        ],
-        "serverFarmId": "[parameters('sites_MusicStoreFunctionApp_serverFarmId')]"
-      },
-      "dependsOn": []
-    },
-    {
-      "comments": "Generalized from resource: '/subscriptions/6d45a9d6-675e-4064-8356-08660968c19b/resourceGroups/GDBC/providers/Microsoft.Web/sites/MusicStoreFunctionApp/config/web'.",
-      "type": "Microsoft.Web/sites/config",
-      "name": "[parameters('config_web_name')]",
-      "apiVersion": "2015-08-01",
-      "location": "South Central US",
-      "tags": {
-        "hidden-related:/subscriptions/6d45a9d6-675e-4064-8356-08660968c19b/resourceGroups/DotNext/providers/Microsoft.Web/serverfarms/ServicePlan4aa310a5-8b4f": "empty"
-      },
-      "scale": null,
-      "properties": {
-        "numberOfWorkers": 1,
-        "defaultDocuments": [
-          "Default.htm",
-          "Default.html",
-          "Default.asp",
-          "index.htm",
-          "index.html",
-          "iisstart.htm",
-          "default.aspx",
-          "index.php",
-          "hostingstart.html"
-        ],
-        "netFrameworkVersion": "v4.0",
-        "phpVersion": "5.6",
-        "pythonVersion": "",
-        "nodeVersion": "",
-        "linuxFxVersion": "",
-        "requestTracingEnabled": false,
-        "remoteDebuggingEnabled": false,
-        "remoteDebuggingVersion": null,
-        "httpLoggingEnabled": false,
-        "logsDirectorySizeLimit": 35,
-        "detailedErrorLoggingEnabled": false,
-        "publishingUsername": "$MusicStoreFunctionApp",
-        "publishingPassword": null,
-        "appSettings": null,
-        "metadata": null,
-        "connectionStrings": null,
-        "machineKey": null,
-        "handlerMappings": null,
-        "documentRoot": null,
-        "scmType": "None",
-        "use32BitWorkerProcess": true,
-        "webSocketsEnabled": false,
-        "alwaysOn": true,
-        "javaVersion": null,
-        "javaContainer": null,
-        "javaContainerVersion": null,
-        "appCommandLine": "",
-        "managedPipelineMode": 0,
-        "virtualApplications": [
-          {
-            "virtualPath": "/",
-            "physicalPath": "site\\wwwroot",
-            "preloadEnabled": true,
-            "virtualDirectories": null
-          }
-        ],
-        "winAuthAdminState": 0,
-        "winAuthTenantState": 0,
-        "customAppPoolIdentityAdminState": false,
-        "customAppPoolIdentityTenantState": false,
-        "runtimeADUser": null,
-        "runtimeADUserPassword": null,
-        "loadBalancing": 1,
-        "routingRules": [],
-        "experiments": {
-          "rampUpRules": []
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_WestEuropePlan_name'))]"
+            ]
         },
-        "limits": null,
-        "autoHealEnabled": false,
-        "autoHealRules": {
-          "triggers": null,
-          "actions": null
-        },
-        "tracingOptions": null,
-        "vnetName": "",
-        "siteAuthEnabled": false,
-        "siteAuthSettings": {
-          "enabled": null,
-          "unauthenticatedClientAction": null,
-          "tokenStoreEnabled": null,
-          "allowedExternalRedirectUrls": null,
-          "defaultProvider": null,
-          "clientId": null,
-          "clientSecret": null,
-          "issuer": null,
-          "allowedAudiences": null,
-          "additionalLoginParams": null,
-          "isAadAutoProvisioned": false,
-          "googleClientId": null,
-          "googleClientSecret": null,
-          "googleOAuthScopes": null,
-          "facebookAppId": null,
-          "facebookAppSecret": null,
-          "facebookOAuthScopes": null,
-          "twitterConsumerKey": null,
-          "twitterConsumerSecret": null,
-          "microsoftAccountClientId": null,
-          "microsoftAccountClientSecret": null,
-          "microsoftAccountOAuthScopes": null
-        },
-        "cors": {
-          "allowedOrigins": [
-            "https://functions.azure.com",
-            "https://functions-staging.azure.com",
-            "https://functions-next.azure.com"
-          ]
-        },
-        "push": null,
-        "apiDefinition": null,
-        "autoSwapSlotName": null,
-        "localMySqlEnabled": false,
-        "ipSecurityRestrictions": null
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_MusicStoreFunctionApp_name'))]"
-      ]
-    }
-  ]
+        {
+            "comments": "Generalized from resource: '/subscriptions/6fc3b2b4-efd7-4580-aaac-36ecf24bbd7e/resourceGroups/DevOpsFunction/providers/Microsoft.Web/sites/MvcMusicStoreFunction12345/config/web'.",
+            "type": "Microsoft.Web/sites/config",
+            "name": "[parameters('config_web_name')]",
+            "apiVersion": "2015-08-01",
+            "location": "West Europe",
+            "scale": null,
+          "properties": {
+            "numberOfWorkers": 1,
+            "defaultDocuments": [
+              "Default.htm",
+              "Default.html",
+              "Default.asp",
+              "index.htm",
+              "index.html",
+              "iisstart.htm",
+              "default.aspx",
+              "index.php",
+              "hostingstart.html"
+            ],
+            "netFrameworkVersion": "v4.0",
+            "phpVersion": "5.6",
+            "pythonVersion": "",
+            "nodeVersion": "",
+            "linuxFxVersion": "",
+            "requestTracingEnabled": false,
+            "remoteDebuggingEnabled": false,
+            "remoteDebuggingVersion": null,
+            "httpLoggingEnabled": false,
+            "logsDirectorySizeLimit": 35,
+            "detailedErrorLoggingEnabled": false,
+            "publishingUsername": "$MvcMusicStoreFunction12345",
+            "publishingPassword": null,
+            "appSettings": null,
+            "metadata": null,
+            "connectionStrings": null,
+            "machineKey": null,
+            "handlerMappings": null,
+            "documentRoot": null,
+            "scmType": "None",
+            "use32BitWorkerProcess": true,
+            "webSocketsEnabled": false,
+            "alwaysOn": false,
+            "javaVersion": null,
+            "javaContainer": null,
+            "javaContainerVersion": null,
+            "appCommandLine": "",
+            "managedPipelineMode": 0,
+            "virtualApplications": [
+              {
+                "virtualPath": "/",
+                "physicalPath": "site\\wwwroot",
+                "preloadEnabled": false,
+                "virtualDirectories": null
+              }
+            ],
+            "winAuthAdminState": 0,
+            "winAuthTenantState": 0,
+            "customAppPoolIdentityAdminState": false,
+            "customAppPoolIdentityTenantState": false,
+            "runtimeADUser": null,
+            "runtimeADUserPassword": null,
+            "loadBalancing": 1,
+            "routingRules": [],
+            "experiments": {
+              "rampUpRules": []
+            },
+            "limits": null,
+            "autoHealEnabled": false,
+            "autoHealRules": {
+              "triggers": null,
+              "actions": null
+            },
+            "tracingOptions": null,
+            "vnetName": "",
+            "siteAuthEnabled": false,
+            "siteAuthSettings": {
+              "enabled": null,
+              "unauthenticatedClientAction": null,
+              "tokenStoreEnabled": null,
+              "allowedExternalRedirectUrls": null,
+              "defaultProvider": null,
+              "clientId": null,
+              "clientSecret": null,
+              "issuer": null,
+              "allowedAudiences": null,
+              "additionalLoginParams": null,
+              "isAadAutoProvisioned": false,
+              "googleClientId": null,
+              "googleClientSecret": null,
+              "googleOAuthScopes": null,
+              "facebookAppId": null,
+              "facebookAppSecret": null,
+              "facebookOAuthScopes": null,
+              "twitterConsumerKey": null,
+              "twitterConsumerSecret": null,
+              "microsoftAccountClientId": null,
+              "microsoftAccountClientSecret": null,
+              "microsoftAccountOAuthScopes": null
+            },
+            "cors": {
+              "allowedOrigins": [
+                "https://functions.azure.com",
+                "https://functions-staging.azure.com",
+                "https://functions-next.azure.com"
+              ]
+            },
+            "push": null,
+            "apiDefinition": null,
+            "autoSwapSlotName": null,
+            "localMySqlEnabled": false,
+            "ipSecurityRestrictions": null
+          },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('musicstore_sitename'))]"
+            ]
+        }
+    ]
 }
